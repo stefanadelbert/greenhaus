@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import logging
+import logging.handlers
+  
+import cmd2
+import redis
+  
+LOG = logging.getLogger(__name__)
+  
+class App(cmd2.Cmd):
+    use_rawinput = True
+    doc_header = "Shell commands (type help <topic>):"
+    app_cmd_header = "Application commands (type help <topic>):"
+  
+    def __init__(self):
+        cmd2.Cmd.__init__(self, 'tab', stdin=None, stdout=None)
+        self.r = redis.Redis(host='localhost', port=6379, db=0)
+  
+    def default(self, line):
+        pass
+  
+    def do_help(self, arg):
+        print('This is the help')
+
+    def do_status(self, arg):
+        res = self.r.get('status')
+        if res:
+            print('Status: {}'.format(res))
+        else:
+            print('Unable to retieve status')
+  
+    def precmd(self, statement):
+        return statement
+  
+    def cmdloop(self):
+        self._cmdloop()
+
+if __name__ == "__main__":
+    app = App()
+    app.cmdloop()
